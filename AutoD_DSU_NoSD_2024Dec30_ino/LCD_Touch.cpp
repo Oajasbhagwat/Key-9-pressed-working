@@ -481,7 +481,7 @@ void calc_Res() {
 
     File MyF;
          SD.begin();
-      myF = SD.open("FName2.txt", FILE_WRITE);
+      myF = SD.open("FName7.txt", FILE_WRITE);
        myF.print("         Res");
        myF.println("         Batt ");
        myF.print(tRes, 2);
@@ -554,7 +554,67 @@ if(key == '9'){
   pinMode(Kbin1, INPUT_PULLUP);
   pinMode(Kbin2, INPUT_PULLUP);
   pinMode(Kbin3, INPUT_PULLUP);
+
+//Added-------------------------------------------------------------
+
+
+      ch10 = Serial2.read();           //Recv_Buff1[j3a] = ch10; j3a++;
+    if (xv1 >= 400) {
+      yv1 += 16;
+      xv1 = 0;
+      
+      
+    }
+    Serial.print(ch10) ;
+    RcBf_R1[tn1] = ch10;
+    if (t_transf == 1) {
+      Recv_Buff1[tn2] = ch10;  // copy ch10 into Recv_Buff1 (15 bytes)
+      tn2++;
+    }
+    n15 = ch10 & 0x0F;
+    if (n15 <= 9) ch6 = 0x30 + n15;
+    else ch6 = 0x41 + (n15 - 10);                            // calculate 1st nibble (lower nibble only) (later try st3=String (n14,HEX);)
+    n15 = (ch10 & 0xF0) >> 4;
+    if (n15 <= 9) ch8 = 0x30 + n15;
+    else ch8 = 0x41 + (n15 - 10);                        //calculate 2nd nibble (ch8)
+    if (RcBf_R1[tn1] == 0xFF && RcBf_R1[tn1 - 1] == 0xFF) {
+      xv1 += 20;
+      xv1 += 20;
+      xv1 += 20;
+      xv1 = 60;
+      yv1 += 12;
+      tn1++;  // // show resistance
+      if (tn1 == 15) { 
+        E2prom_put() ;
+ // store RcBf_R1 [0~15 byttes in EEPROM]
+        calc_Batt();
+        if (Range_Sw != 1 && Fpr != 'Q');
+      }  // do not call Show_LlK ,if in Batt position,, or in 'Test'mode. show 15 bytes, expected to be 01,0Fh,.....upto FFh,FFh
+      if (tn1 == 21) curr_Status();
+      if (tn1 == 21) {
+        tn2 = 0;
+        tn3 = 0;
+        t_transf = 1;
+      }  // tn2 will go from 0 to 14 (15 bytes)
+      if (Cycl_Sw == 1 && (tn1 == 35 || tn1 == 36)) {
+        xn1 = 0;
+        PrCycl_No = 0;
+        calc_Res();
+        tn1 = 0;
+      }  //  && means 1-cycle only. after 'calc_Res' make tn1=0;  // end of 'if Cycl_Sw==1/2/3/4
+    }    //end of 'if 2 bytes=FFh,FFh
+    else {
+      xv1 += 20;
+      tn1++;
+    }  // if (t_transf==1) tn2++;  at Ln ~ 1475
+
 }
+
+
+
+
+
+
 
     
     if (dimR == 'm') lcd1.print("m");
@@ -565,6 +625,7 @@ if(key == '9'){
     } else {
       myF = SD.open(FName2, FILE_WRITE);
        myF.print("         Res");
+       myF.print(",");
        myF.println("         Batt ");
        myF.print(BattV);
        Serial.print("File writing done");
