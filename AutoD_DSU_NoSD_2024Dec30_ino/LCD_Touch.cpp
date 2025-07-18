@@ -311,7 +311,8 @@ void calc_Batt() {
   dtostrf(BattV, 5, 2, st1);                                                         // Batt Volt e.g. 12.83, RcBf_R1[7] expected to be 0
                                                                                      //-------------- do not clear entire lcd ----------------------------
   lcd1.setCursor(0, 0);
-  if (Fpr == 'Q') lcd1.print("F0");
+  if (Fpr == 'Q') lcd1.print("F0 314");
+  
   lcd1.setCursor(13, 0);
   lcd1.print("B=");
   lcd1.print(BattV, 2);  // now,'Sigma',1lcd1.clear();show at (13,0) B=12.68
@@ -357,8 +358,7 @@ void curr_Status() {
     lcd1.print(IeMag2[IeNo2]);
     lcd1.print("mA");  // first erase 15~19,then current magnitude
     lcd1.setCursor(0, 0);
-    if (Fpr == 'Q') lcd1.print("F0");
-  }  //
+ }  //
   else {                                                                                        // IeStat==0,means 'No current'
     lcd1.setCursor(8, 0);
     lcd1.print("-No Curr--- ");
@@ -391,7 +391,7 @@ void calc_Res() {
     Rest[RdNo] = Resm;
     tRes = Resm;                 // Resistance  in milliOhm
     tRho = Kvt * (Resm / 1000);  // (Resm/1000) is in 'Ohm'
-  }                              //GUI_DrawRectangle(270, y7 + 40, 270 + 70 , y7 + 53 , Colr[7], DRAW_FULL, DOT_PIXEL_DFT); // erase rect for value
+  }                              
   else {
     tRes = Resm / 1000;  //now tRes is in 'ohm'
     tRho = Kvt * tRes;   // tRho is in ohm-meter
@@ -404,11 +404,7 @@ void calc_Res() {
       dimR = 'k';  //now Res is in kohm
     }
   }
-  if ((Fpr != 'Q') && ((Cycl_Sw == 1) || ((Cycl_Sw == 2) && PrCycl_No == 4))) {
-    if ((Surv_meth == 1) || (Surv_meth == 2))  // Schlumberger or Wenner-- store 8 bytes
-    {}
-    if (Surv_meth == 3){}
-  } 
+ 
   dtostrf(tRes, 9, 2, st1);  //
   dtostrf(tRho, 9, 2, st1);  //
   // For testing:--LSpcN++not done; update Last Spacing No
@@ -481,7 +477,7 @@ if(key == '9'){
   pinMode(Kbin3, INPUT_PULLUP);
 
 //Added-------------------------------------------------------------
-
+    digitalWrite(27, HIGH.);
       ch10 = Serial2.read();           //Recv_Buff1[j3a] = ch10; j3a++;
     RcBf_R1[tn1] = ch10;
     if (t_transf == 1) {
@@ -524,18 +520,10 @@ if(key == '9'){
     if (dimR == ' ') lcd1.print(" ");
     if (dimR == 'k') lcd1.print("k");
     lcd1.write(0xF4);  // lcd1.setCursor(4, 0);F4h is 'ohm'
-    if (Fpr != 'Q') {  //
-    } else {
-      myF = SD.open(FName2, FILE_WRITE);
-       myF.print("         Res");
-       myF.print(",");
-       myF.println("         Batt ");
-       myF.print(BattV);
-    }
-    lcd1.setCursor(0, 3);
+     lcd1.setCursor(0, 3);
     lcd1.print(" ");
     lcd1.setCursor(0, 0);
-    if (Fpr == 'Q') lcd1.print("F0");
+    if (Fpr == 'Q') lcd1.print("F0 526");
         
     if (Fpr != 'Q') {    }  // erase chars. 12~19 & ch. (19,0)
     else {
@@ -555,109 +543,7 @@ if(key == '9'){
       }
     }
   }
-  if (Cycl_Sw == 2 || Cycl_Sw == 3 || Cycl_Sw == 4)  // 4/16/64 cycls mode
-  {
-    lcd1.setCursor(12, 0);
-    lcd1.print("       ");
-    lcd1.setCursor(19, 0);
-    lcd1.print(" ");  // erase chars. 12~19 & ch. (19,0)
-    if (Fpr != 'Q') {
-      //------------------------------------------no printing of 'L' in 'test' mode----(4-cycle mode---------------------------------------
-      if (Ldig1 == 0) {  //L=--- at top right corner
-        lcd1.setCursor(13, 0);
-        lcd1.print("L=");
-        lcd1.print(Lint3);
-      }  // L integer, at (12,0)
-      else {
-        dtostrf(fltLv, 7, 1, st1);
-        lcd1.setCursor(13, 0);
-        lcd1.print("L=");
-        lcd1.print(fltLv, 1);
-      }  // L-Float at (12,0)
-    }
-    //- - - - - - - - Cycl-1- - - - - - - - - - -- - - - - - - - - --  - - - - - - - - - -
-    if (PrCycl_No == 1) {
-      lcd1.setCursor(0, 1);
-      lcd1.print("                   ");
-      lcd1.setCursor(19, 1);
-      lcd1.print(" ");  // erase entire line-1 & ch. (19,1)
-      lcd1.setCursor(3, 1);
-      lcd1.print("R(");
-      lcd1.print(PrCycl_No);
-      lcd1.print("/4)=");
-      lcd1.print(tRes, 2);  //erase 0~2
-      if (dimR == 'm') lcd1.print("m");
-      if (dimR == ' ') lcd1.print(" ");
-      if (dimR == 'k') lcd1.print("k");
-      lcd1.write(0xF4);  //  F4h is 'ohm'
-    }                    //
-    if (PrCycl_No == 2) {
-      lcd1.setCursor(0, 1);
-      lcd1.print("                   ");
-      lcd1.setCursor(19, 1);
-      lcd1.print(" ");  // erase entire line-1 & ch. (19,1)
-      lcd1.setCursor(3, 1);
-      lcd1.print("R(");
-      lcd1.print(PrCycl_No);
-      lcd1.print("/4)=");
-      lcd1.print(tRes, 2);  //erase 0~2
-      if (dimR == 'm') lcd1.print("m");
-      if (dimR == ' ') lcd1.print(" ");
-      if (dimR == 'k') lcd1.print("k");
-      lcd1.write(0xF4);  //  F4h is 'ohm'
-    }                    //
-    if (PrCycl_No == 3) {
-      lcd1.setCursor(0, 1);
-      lcd1.print("                   ");
-      lcd1.setCursor(19, 1);
-      lcd1.print(" ");  // erase entire line-1 & ch. (19,1)
-      lcd1.setCursor(3, 1);
-      lcd1.print("R(");
-      lcd1.print(PrCycl_No);
-      lcd1.print("/4)=");
-      lcd1.print(tRes, 2);  //erase 0~2
-      if (dimR == 'm') lcd1.print("m");
-      if (dimR == ' ') lcd1.print(" ");
-      if (dimR == 'k') lcd1.print("k");
-      lcd1.write(0xF4);  //  F4h is 'ohm'
-    }                    //
-    if (PrCycl_No == 4)  // ----------last of 4 cycles------------------------
-    {
-      lcd1.setCursor(0, 1);
-      lcd1.print("                   ");
-      lcd1.setCursor(19, 1);
-      lcd1.print(" ");  // erase entire line-1  & ch. (19,1)
-      lcd1.setCursor(3, 1);
-      lcd1.print("R(");
-      lcd1.print(PrCycl_No);
-      lcd1.print("/4)=");
-      lcd1.print(tRes, 2);  //erase 0~2
-      if (dimR == 'm') lcd1.print("m");
-      if (dimR == ' ') lcd1.print(" ");
-      if (dimR == 'k') lcd1.print("k");
-      lcd1.write(0xF4);  //  9Ah is 'ohm'
-     if (Fpr != 'Q') {
-        lcd1.setCursor(0, 2);
-        lcd1.write(0xE6);
-        lcd1.print("=");
-        lcd1.print(tRho, 2);
-        lcd1.print("");
-        lcd1.write(0xF4);
-        lcd1.print("m");  //4th line, E6 means Rho
-        lcd1.print("-stored-");
-      } else {
-        lcd1.setCursor(0, 2);
-        lcd1.print("-Res. not stored- ");
-      }  // 'F0', 'Test' mode
-      lcd1.setCursor(0, 3);
-      lcd1.print("press 6 for next");  // message for next operation
-    }                                  //
-  }  // end of 'if '4-Cycle mode'
-  if (Cycl_Sw == 1 || (PrCycl_No == 4 && (Cycl_Sw == 2 || Cycl_Sw == 3 || Cycl_Sw == 4))) {
-    if (Fpr != 'Q')  // {writing into 'SD' not to be done when Fpr==0, Test mode)
-    {}               // end of writing into 'SD''
-  }  // end of writing into 'SD'
-}  //..........................................end of 'calc_Res'............................................
+   }  //..........................................end of 'calc_Res'............................................
 
 void Recv_Serial2() {  //j3a=0 to be done at initialization time          xv1=60 & yv1==80 initially
   while (Serial2.available() > 0) {  // data expected from Serial-2 channel (Serial-1 is for GPS module) as of 8/August/2022)
@@ -667,12 +553,6 @@ void Recv_Serial2() {  //j3a=0 to be done at initialization time          xv1=60
       Recv_Buff1[tn2] = ch10;  // copy ch10 into Recv_Buff1 (15 bytes)
       tn2++;
     }
-    n15 = ch10 & 0x0F;
-    if (n15 <= 9) ch6 = 0x30 + n15;
-    else ch6 = 0x41 + (n15 - 10);                            // calculate 1st nibble (lower nibble only) (later try st3=String (n14,HEX);)
-    n15 = (ch10 & 0xF0) >> 4;
-    if (n15 <= 9) ch8 = 0x30 + n15;
-    else ch8 = 0x41 + (n15 - 10);                        //calculate 2nd nibble (ch8)
     if (RcBf_R1[tn1] == 0xFF && RcBf_R1[tn1 - 1] == 0xFF) {
       tn1++;  // // show resistance
       if (tn1 == 15) { 
@@ -687,7 +567,6 @@ void Recv_Serial2() {  //j3a=0 to be done at initialization time          xv1=60
         t_transf = 1;
       }  // tn2 will go from 0 to 14 (15 bytes)
       if (Cycl_Sw == 1 && (tn1 == 35 || tn1 == 36)) {
-        xn1 = 0;
         PrCycl_No = 0;
         calc_Res();
         tn1 = 0;
@@ -709,7 +588,7 @@ void entry_fnc_Q() {
   t_transf = 0;  // this means no. of chars. received at Serial2=0. This may help
   lcd1.clear();
   lcd1.setCursor(0, 0);
-  lcd1.print("F0");
+  lcd1.print("F0 591");
   lcd1.print(" Test mode");
   lcd1.setCursor(0, 1);
   lcd1.print("");
