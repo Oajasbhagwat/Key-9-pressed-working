@@ -4,7 +4,6 @@
 const byte ROWS = 4;
 const byte COLS = 4;
 LiquidCrystal lcd(28,30,32,34,36,38);
-
 char keys[ROWS][COLS] = {
   {'1','4','7','.'},
   {'2','5','8','0'},
@@ -16,18 +15,14 @@ byte pin_column[COLS] = {37,39,41,43};
 
 Keypad customKeypad = Keypad(makeKeymap(keys), pin_rows, pin_column, ROWS, COLS);
 //-----------Till here------------------
-
 #include "LCD_Touch.h"  //---------AutoD_DSU8------------------
 #include "Debug.h"
 #include <EEPROM.h>
-#include <TinyGPS.h>
-#include <TinyGPS++.h>     //#include <var_const.h>
 #include <avr/pgmspace.h>  // <avr/pgmspace.h> is needed to define constants in 'Program memory' 8/march/2023
 #include <arduino.h>
 #include <stdlib.h>
 #include <SD.h>
 File myF;     //myF is a FILE object
-TinyGPS gps;  // gps is a  TinyGPS object Baud rate for GPS chip is 9600
 extern LCD_DIS sLCD_DIS;
 static TP_DEV sTP_DEV;
 static TP_DRAW sTP_Draw;
@@ -35,10 +30,8 @@ static TP_DRAW sTP_Draw;
 const int rs = 28, en = 30, d4 = 32, d5 = 34, d6 = 36, d7 = 38;         //
 extern LiquidCrystal lcd1;                                              //(rs, en, d4, d5, d6, d7); //lcd1 is not being treated as Global object !
 const unsigned int PLp[] PROGMEM = { 1, 2, 3, 5, 10, 13, 15, 20, 23 };  // not used, (numbers in PROG memory)
-const unsigned int PLt[] PROGMEM = { 15, 20, 25, 30, 40, 50, 60, 80, 100, 100, 120, 150, 200, 250, 250, 300, 400, 500, 600, 800, 1000, 1000, 1200, 1500, 1800,
-                                     2000, 2000, 2500, 3000, 3000, 3500, 4000, 4500, 5000, 5000, 5500, 6000, 6500 };  // 0~37 (total 38 integers),10* actual values
-const unsigned int Plt[] PROGMEM = { 5, 5, 5, 5, 5, 5, 5, 5, 5, 20, 20, 20, 20, 20, 50, 50, 50, 50, 50, 50, 50, 100, 100, 100, 100, 100, 200, 200, 200, 400, 400, 400, 400, 400, 500,
-                                     500, 500, 500 };                                                                                                     // 0~37 (total 38 integers),10* actual values
+const unsigned int PLt[] PROGMEM = { 15, 20, 25, 30, 40, 50, 60, 80, 100, 100, 120, 150, 200, 250, 250, 300, 400, 500, 600, 800, 1000, 1000, 1200, 1500, 1800,2000, 2000, 2500, 3000, 3000, 3500, 4000, 4500, 5000, 5000, 5500, 6000, 6500 };  // 0~37 (total 38 integers),10* actual values
+const unsigned int Plt[] PROGMEM = { 5, 5, 5, 5, 5, 5, 5, 5, 5, 20, 20, 20, 20, 20, 50, 50, 50, 50, 50, 50, 50, 100, 100, 100, 100, 100, 200, 200, 200, 400, 400, 400, 400, 400, 500,500, 500, 500 };                                                                                                     // 0~37 (total 38 integers),10* actual values
 const unsigned int Wennat[] PROGMEM = { 20, 40, 60, 80, 100, 120, 140, 160, 180, 200, 220, 240, 260, 280, 300, 320, 340, 360, 380, 400, 440, 480, 520 };  // 0~22,23 values: 2~40 m. chang= 2m., 44~52. cgange by 4m. at each step
 const unsigned int Dipat[] PROGMEM = { 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5 };                                       // 0~24, 25 values. like L
 const unsigned int Dipnat[] PROGMEM = { 2, 3, 4, 5, 6, 2, 3, 4, 5, 6, 2, 3, 4, 5, 6, 2, 3, 4, 5, 6, 2, 3, 4, 5, 6 };                                      // 0~24,25 values, like l
@@ -53,7 +46,6 @@ volatile unsigned int Surv_meth = 2, SpScr = 2, WaL;                            
 volatile POINT x1, y1, x2 = 20, x3 = 20, x4 = 20, x5 = 70, x6 = 80, x7, x8, x9, x10 = 100, y2 = 30, y3, y4, y5, y6 = 60, y7, y8, y10 = 120, xr1, yr1, quit, dx1, dx2, dx3, dx4, dx5, dy1, dy2, dy3, dy4, dy5;  // dy-some distance
 volatile POINT xr2 = 5, xr3 = 45, xr4 = 20, xr5, yr2 = 50, yr3 = 200, yr4 = 170, yr5;
 volatile POINT x12, x13, x14, x15, y12, y13, y14, y15, xi1[6] = { 300, 300, 300, 300, 300, 280 }, yi1[6] = { 50, 70, 90, 110, 130, 160 }, xw1 = 10, yw1 = 190, xv1 = 60, yv1 = 80, xv2 = 60, yv2 = 100;  // x11 defined in 1 st program group
-volatile unsigned int vts[5] = { 0, 0, 0, 0, 0 }, vtstot = 0, j2a, j3a;
 volatile unsigned char ch1 = 0x41, ch2 = 0x61, ch3, ch4 = 'j', ch5, ch6, ch7 = 'd', ch8, ch9, ch10, ch11, j, j1 = 0, j2 = 0, j3 = 0, j4, j5, j6, j7, j8, j9, j10, chr, TchScrch;  // ch1='A' & ch2='a', ch4=107 (97+10 ('k') )
 volatile unsigned char j2old = 0, j3old = 0, j4old = 0, j5old = 0, j6old = 0, j2new = 0, j3new = 0, j4new = 0, j5new = 0, j6new = 0;
 volatile unsigned char dimR;                       // dimR='milli'/blank/'kilo'
@@ -61,25 +53,22 @@ volatile unsigned char chs1 = 0, chs2, Kbkaz = 0;  //chs1-- old state of touch p
 volatile unsigned char sgsy[8] = { '+', '+', '-', '-', '-', '-', '+', '+' };
 volatile byte PrA, PrC;                    // data to be written into Arduino ports A & C
 volatile byte SPrA = 04, SPrB = 00, SPrC;  // data to be wrtten into 'Slave' Ports (of 8255 on A4-D1 card) A,B,C , V5 =V5Low
-volatile unsigned int wlk1[] = { 1, 2, 4, 0x08, 0x10, 0x20, 0x40, 0x80, 0x100, 0x200, 0x400, 0x800, 0x1000, 0x2000, 0x4000, 0x8000 };
 volatile float vr1 = 49.37, vr2, vr3, vr4, vr5, Vinp, KNp = 5000.0, KNm = 5000.0, Voffs = +0.0, SPVolt;  //27; ( for Gain=5.0 ),
 volatile float IeMag[] = { 0.4, 1.0, 2.00, 5.0, 10.0, 20.0 }, Ieval = 2.0, wgt1, wgt2, icnA1;  // Ieval= 2.0 mAmp
 volatile char st1[wsl] = { "+000085.12  g" }, st2[wsl], st3[wsl], st4[wsl] = { "" }, st5[wsl], st6[wsl], st7[wsl], st8[wsl], st9[wsl], st10[wsl];
 volatile char Blnk[10] = { "         " }, Fpr = 'Q';  // 'Q' means it is in 'Test' mode 10 blanks,Fpr=0 or 'F',or 'G'....'P' (11 nos.)
-const char FName[] = { "SUV9.txt" };
+
 volatile char FName2[10] = { "Srv3.csv" }, StrName1[20], StrName2[20], StrName3[20];
-volatile unsigned int Noffp = 100, Noffn = 0, Npp = 500, Npm = 0;  //(say, Npp= 50, Noffset+,- Np =,- (for Gain.5 -- Noffp =155
+ //(say, Npp= 50, Noffset+,- Np =,- (for Gain.5 -- Noffp =155
 const int SerD = 22, SClk = 23, Lat = 24, SyncP = 25, Wr2 = 27;    // Serial  data out -D22,Serial clock pin=D23,LatchPin=D24. SyncP for OscScope
 volatile byte A2_Cntrl, A4_Dt, A4_Cntrl, A4_KAv, A4_Rl, A4_DAC;
 const String inStr = "499.98", Str3, Str5 = "Vp1p2", Str6 = "Resist", Str7, Str11 = "Sur4.csv";
 volatile String Str10, Str12, Str13, Str14, Str15 = ("Sur4.csv"), Str16("#"), Str17, Str18, Str19, Str20;                                              // volatile Strings, "Suv" -- Survey
 volatile unsigned int Tsat = 0, NtRn1 = 5, NtRn2 = 5, ht1 = 13, EAd = 0, EAd1 = 0, EAd2, EAd3, EAd4, EAd5, EAd6, EAd7, EAd8, EAd9, EAd10, EAd11;  //Colr[];
-volatile float Resist[20], yfct = 0.4, Vp1p2, Res, Resx, Resm, fNsig2, BattV, tRes1, fltLv, fltlv, tRohm;                   // yfct=100/Npls[0] (should be Npls[1]
-volatile float tRes2[5];                                                                                                    //   tRes2[70];
+volatile float Resist[20], yfct = 0.4, Vp1p2, Res, Resx, Resm, fNsig2, BattV, tRes1, fltLv, fltlv, tRohm;                   // yfct=100/Npls[0] (should be Npls[1
 volatile signed int Npls[5], Ndots[5], Ycoord[5], NdtxA = 160, Nsig = 20, Nsig2, Nbck = 150, Nbckdt = 100, Slp = 1, IeNo2;  // Slp - slope =1 means Vp1p2 changes by Slp every Sec.
 extern volatile byte SD_ok, sh_sg = 0;                                                                                      //(rs, en, d4, d5, d6, d7);
 volatile byte in_Byte, last_lvl = 0, pres_lvl = 0, start_sending = 0, Recv = 0, First_Pls = 0, Ignr_pulses = 1, A1ReqO = 1, A1ReqN = 0, A1Powold = 0, A1PowN = 0, A1PSw, IeStat;
-volatile byte Ack1, Actkn1 = 0, Actkn2 = 0;  // Acknoledge signal = D24 output. WHen this is '0', Auto-D starts sending data to DSU
 volatile byte Recv_Buff1[100], RcBf_R1[100], GPS_rdng = 0;
 volatile unsigned long F_cnt, Resint, ln8;                                                                                  //no. of pulses in 4 Sec, Resint- 'resistance' in int. form
 volatile unsigned int icn[] = { 1000, 500, 250, 100, 50, 20, 10 }, CurrMag[] = { 5, 10, 20, 50, 100, 250, 500 }, RdNo = 0;  // 'multipliers' for 5,10,20, 50, 100,250,500 mA
@@ -118,24 +107,7 @@ volatile float StRho[] = { 30.53, 25.41, 17.62, 20.28, 21.73 }, StRho1;  // Rho 
 #define otpin1 31
 #define otpin2 33
 #define otpin3 35
-#define k_1   0x11  // '1'
-#define k_4   0x21  // '4'
-#define k_7   0x41  // '7'
-#define k_dot 0x81  // '.'
-#define k_2 0x12    // '2'
-#define k_5 0x22    // '5'
-#define k_8 0x42    // '8'
-#define k_zr 0x82   // '0'
-#define k_3 0x14    // '3'
-#define k_6 0x24    // '6'
 #define k_9 0x44    // '9'
-#define k_F 0x84    // 'F'
-#define k_pr 0x18                                                                                  // "Prev"
-#define k_nx 0x28                                                                                  // "Next"
-#define k_cl 0x48                                                                                  //"Clear"
-#define k_sv 0x88                                                                                  //"Save"
-volatile int ldg2, lmin2, ldg0 = 0, ldg1 = 0, lmin0 = 0, lmin1 = 0, ldg0L, ldg1L, lmin0L, lmin1L;  //  ( ldg2,lmin2  not used presently)
-//  for KeyBoard :. . . LKSt
 volatile byte Kbout[4], sccdV[4] = { 0x0E, 0x0D, 0x0B, 0x07 }, RetL = 0, RetL2 = 0x41;
 volatile struct {
   byte KSt;
@@ -154,23 +126,13 @@ volatile byte Mn, Dte, Hr, mint, Scnd, EMn[4], EDte[4], EHr[4], Emint[4], EScnd[
 volatile unsigned long LAltit, f_age = 0, sz1, sz2, tsz1, tsz2;                                                                 // sz1,sz2 for file size, tsz1,tsz2-- total sizes
 volatile unsigned int i1, i2, i3, i4, i5, EdSpc_No=2;  // 'Edit_Spacing_Srl. No.
 volatile float latitude, longitude;  // from
-/*******************************************************************************
-  function:
-        Paint the Delete key and paint color choose area
-*******************************************************************************/
-
 void fnc_H9() {  // within 'H' ,key-9  pressed,'Sigma',5 , Normal Survey mode,SpacingNo
   digitalWrite(27, LOW);
   timr7 = 0;
   timr7_flag = 1;  //  D27<--0,turns on Auto_D
 }
-
-void TP_Dialog(void) {
-}
-// --    draw keyboard  a~z or A~Z
-void Dr_Kb()  // draw keyBoard
-{}
-// ................................end of drw KeyBoard ,,,,,,,,,,,,,,,,,,,
+void TP_Dialog(void) {}
+void Dr_Kb(){}
 void A4_Init() {
   InitTimr();    // Timers 3,5,0 initialized
   interrupts();  //enable all global interrupts
@@ -194,12 +156,10 @@ void A4_Init() {
   EAd8 = 2060;
   EAd9 = 2280;
   EAd10 = 2480;  // EAd1 ,2,3,4,5,6,7,8 redefined 6/March/2023, Monday
-  Srv_No = 8;
   LSpcN = 7;
   LRdSr = 9;  //these values should get redefined when the statements LSpcN2<-- E2prom[tEA] etc are executed (2~4 lines from here)
   tEA = EAd1;
   EEPROM.get(tEA, Srv_No);  // Survey no. gets updated in mode F4
-  //---------------------------Both (LRdSr2 & LSpcN2) become 0, when new survey is opened------------------
   tEA = EAd1 + (3 * IntSz);
   EEPROM.get(tEA, LRdSr2);  //  Read  integer 3 as LRdSr2 earlier: tEA=EAd1+(1*IntSz) ; Last Reading Sr. No & l. spac. no.
   tEA = EAd1 + (4 * IntSz);
@@ -238,24 +198,11 @@ void A4_Init() {
   }    // end of j3 loop
   LCNomax = j5 + 1;
   lCNomax = j2 + 1;  // now,LCNomax overrides the value declared in variable list. if LNomax=47, then LCNomax= ~47+8=55
-  //  ............................end of study of L_l_Table ......................
-  // -------- ----------------------------Define Survey file e.g. Srv15.csv ---------------------------------------------
   del1();
   IntSz = 2;
   FltSz = 4;
   for (m7 = 0; m7 <= 8; m7++) FName2[m7] = Str11[m7];
-  //lcd1.setCursor(0, 2);lcd1.print("FNme");lcd1.print(Str11); // copy const string 'Str11' into const 'char' array
-  //-------show new names ----------------------------------------------
   del1();
-  //..................................................end of 'define Survey file...............................
-  //---------------------------------write  into 'SD' . ---- Then read back & show it----------------------------
-  del1();
-  // Define some parameters
-  Npls[1] = Nbck + Nsig;
-  Npls[2] = Nbck - Nsig;
-  Npls[3] = Nbck - Nsig;
-  Npls[4] = Nbck + Nsig;
-  yfct = (float)(70.0 / (float)Npls[1]);
   j2 = 0;  // bit position in received byte
   Recv = 0;  // ignore received data
   j3 = 0;  // j3= no. of bytes receied on 'Serial1' initialized to 0
@@ -283,8 +230,6 @@ void E2prom_get() {
  void Show_Recv_bytes() {
    for (i5=0; i5>=14; i5++) Serial.write(RcBf_R1[i5]) ;
  }
-void printDir(File dir, unsigned int ntb) { 
-}
 void E2prom_Lltbl(unsigned int n1) {
   unsigned int i1;
   for (i1 = 0; i1 <= 37; i1++) {
@@ -304,22 +249,18 @@ void E2prom_Lltbl(unsigned int n1) {
     EEPROM.put(tEA, pgm_read_word_near(Dipnat + i1));
   }  //EAd9=2280,25 sets
 }
-void Updt_DigInpLvls() {  // vr2 = strtof(st1);  // just for testing 'strtof'
-}//-----------------------------calculate Batt. Voltage--(7/Sep/2022---------------------------------------------------------------
+void Updt_DigInpLvls() {}//-----------------------------calculate Batt. Voltage--(7/Sep/2022---------------------------------------------------------------
 void calc_Batt() {
   BattV = (float)ln8 / 100.0;
   dtostrf(BattV, 5, 2, st1);                                                         // Batt Volt e.g. 12.83, RcBf_R1[7] expected to be 0
-                                                                                     //-------------- do not clear entire lcd ----------------------------
   lcd1.setCursor(0, 0);
-  if (Fpr == 'Q') lcd1.print("F0 314");
-  
+  if (Fpr == 'Q') lcd1.print("F0");
   lcd1.setCursor(13, 0);
   lcd1.print("B=");
   lcd1.print(BattV, 2);  // now,'Sigma',1lcd1.clear();show at (13,0) B=12.68
   delay(2000);
   lcd1.setCursor(0, 3);
-  lcd1.print("                   ");  // erase line-3 (press measure)
-                                      //-----------------------show switch positions, only if RcBf_R1==3,i.e.Rannge switch pos. is on 'Bat'---------------------
+  lcd1.print("                   ");  // erase line-3 (press measure
   Curr_Sw = RcBf_R1[2];
   Range_Sw = RcBf_R1[3];
   Cycl_Sw = RcBf_R1[4];
@@ -404,7 +345,6 @@ void calc_Res() {
       dimR = 'k';  //now Res is in kohm
     }
   }
- 
   dtostrf(tRes, 9, 2, st1);  //
   dtostrf(tRho, 9, 2, st1);  //
   // For testing:--LSpcN++not done; update Last Spacing No
@@ -417,7 +357,6 @@ void calc_Res() {
     lcd1.setCursor(8, 1);
     lcd1.print("R=");
     lcd1.print(tRes, 2);
-
     File MyF;
          SD.begin();
       myF = SD.open("FName7.txt", FILE_WRITE);
@@ -438,46 +377,21 @@ void calc_Res() {
     delay(20);
     }
    } 
- 
   if (key) {
     lcd1.setCursor(0, 1);
     lcd1.print("Key is ");
     lcd1.print(key);
     delay(2000);
   }
-
 if(key == '9'){
-  delay(2000);
-  lcd1.setCursor(0,0);
-  lcd1.print("Calling A4 Init");
-  delay(2000);
   A4_Init();  // ( one-time initialization
-  
-   lcd1.setCursor(0,0);
-  lcd1.print("Done A4 Init");
-  delay(2000);
-
-  lcd1.setCursor(0,0);
-  lcd1.print("Calling Function Q");
-  delay(2000);
   fnc_Q2();  // ( one-time initialization
-  
    lcd1.setCursor(0,0);
   lcd1.print("Done Function Q");
   lcd1.clear();
   delay(2000);
-
-  pinMode(otpin0, OUTPUT);
-  pinMode(otpin1, OUTPUT);  // out (3,2,1,0) 1110
-  pinMode(otpin2, OUTPUT);
-  pinMode(otpin3, OUTPUT);
-  pinMode(Kbin0, INPUT_PULLUP);
-  pinMode(Kbin1, INPUT_PULLUP);
-  pinMode(Kbin2, INPUT_PULLUP);
-  pinMode(Kbin3, INPUT_PULLUP);
-
 //Added-------------------------------------------------------------
-    digitalWrite(27, HIGH.);
+    digitalWrite(27, HIGH);
       ch10 = Serial2.read();           //Recv_Buff1[j3a] = ch10; j3a++;
     RcBf_R1[tn1] = ch10;
     if (t_transf == 1) {
@@ -494,7 +408,6 @@ if(key == '9'){
       tn1++;  // // show resistance
       if (tn1 == 15) { 
         E2prom_put() ;
- // store RcBf_R1 [0~15 byttes in EEPROM]
         calc_Batt();
         if (Range_Sw != 1 && Fpr != 'Q');
       }  // do not call Show_LlK ,if in Batt position,, or in 'Test'mode. show 15 bytes, expected to be 01,0Fh,.....upto FFh,FFh
@@ -514,8 +427,7 @@ if(key == '9'){
     else {
       tn1++;
     }  // if (t_transf==1) tn2++;  at Ln ~ 1475
-}
-    
+}    
     if (dimR == 'm') lcd1.print("m");
     if (dimR == ' ') lcd1.print(" ");
     if (dimR == 'k') lcd1.print("k");
@@ -523,8 +435,7 @@ if(key == '9'){
      lcd1.setCursor(0, 3);
     lcd1.print(" ");
     lcd1.setCursor(0, 0);
-    if (Fpr == 'Q') lcd1.print("F0 526");
-        
+    if (Fpr == 'Q') lcd1.print("F0");        
     if (Fpr != 'Q') {    }  // erase chars. 12~19 & ch. (19,0)
     else {
       lcd1.setCursor(0, 3);
@@ -544,7 +455,6 @@ if(key == '9'){
     }
   }
    }  //..........................................end of 'calc_Res'............................................
-
 void Recv_Serial2() {  //j3a=0 to be done at initialization time          xv1=60 & yv1==80 initially
   while (Serial2.available() > 0) {  // data expected from Serial-2 channel (Serial-1 is for GPS module) as of 8/August/2022)
     ch10 = Serial2.read();           //Recv_Buff1[j3a] = ch10; j3a++;
@@ -588,7 +498,7 @@ void entry_fnc_Q() {
   t_transf = 0;  // this means no. of chars. received at Serial2=0. This may help
   lcd1.clear();
   lcd1.setCursor(0, 0);
-  lcd1.print("F0 591");
+  lcd1.print("F0");
   lcd1.print(" Test mode");
   lcd1.setCursor(0, 1);
   lcd1.print("");
