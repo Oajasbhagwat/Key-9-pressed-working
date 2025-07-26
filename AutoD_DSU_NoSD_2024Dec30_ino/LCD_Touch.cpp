@@ -12,7 +12,6 @@ char keys[ROWS][COLS] = {
 };
 byte pin_rows[ROWS] = {29,31,33,35};
 byte pin_column[COLS] = {37,39,41,43};
-
 Keypad customKeypad = Keypad(makeKeymap(keys), pin_rows, pin_column, ROWS, COLS);
 //-----------Till here------------------
 #include "LCD_Touch.h"  //---------AutoD_DSU8------------------
@@ -29,7 +28,6 @@ static TP_DRAW sTP_Draw;
 #define wsl 15                                                          // no.  of charrs received from wiighing machine
 const int rs = 28, en = 30, d4 = 32, d5 = 34, d6 = 36, d7 = 38;         //
 extern LiquidCrystal lcd1;                                              //(rs, en, d4, d5, d6, d7); //lcd1 is not being treated as Global object !
-const unsigned int PLp[] PROGMEM = { 1, 2, 3, 5, 10, 13, 15, 20, 23 };  // not used, (numbers in PROG memory)
 const unsigned int PLt[] PROGMEM = { 15, 20, 25, 30, 40, 50, 60, 80, 100, 100, 120, 150, 200, 250, 250, 300, 400, 500, 600, 800, 1000, 1000, 1200, 1500, 1800,2000, 2000, 2500, 3000, 3000, 3500, 4000, 4500, 5000, 5000, 5500, 6000, 6500 };  // 0~37 (total 38 integers),10* actual values
 const unsigned int Plt[] PROGMEM = { 5, 5, 5, 5, 5, 5, 5, 5, 5, 20, 20, 20, 20, 20, 50, 50, 50, 50, 50, 50, 50, 100, 100, 100, 100, 100, 200, 200, 200, 400, 400, 400, 400, 400, 500,500, 500, 500 };                                                                                                     // 0~37 (total 38 integers),10* actual values
 const unsigned int Wennat[] PROGMEM = { 20, 40, 60, 80, 100, 120, 140, 160, 180, 200, 220, 240, 260, 280, 300, 320, 340, 360, 380, 400, 440, 480, 520 };  // 0~22,23 values: 2~40 m. chang= 2m., 44~52. cgange by 4m. at each step
@@ -44,23 +42,15 @@ volatile unsigned int drn = 0, n1 = 10, n2 = 15, n3, n4 = 5, n5, n6 = 10, n7 = 0
 volatile unsigned int m1 = 0, m2 = 0, m3, m4, m5, m6 = 0, m7, m8, m9 = 1, m10 = 1, m11, m12 = 1, m13 = 0, m14, m15, k1, k2, k3, k4 = 0, k5, k6 = 0, im1, im2 = 20, im3, im4, im5;                              // some integer values
 volatile unsigned int Surv_meth = 2, SpScr = 2, WaL;                                                                                                                                                           // =1 means -Schlumberger, ==2 means -Wenner, ==3 means -Dipole-Dipole ,SpScr- split screen
 volatile POINT x1, y1, x2 = 20, x3 = 20, x4 = 20, x5 = 70, x6 = 80, x7, x8, x9, x10 = 100, y2 = 30, y3, y4, y5, y6 = 60, y7, y8, y10 = 120, xr1, yr1, quit, dx1, dx2, dx3, dx4, dx5, dy1, dy2, dy3, dy4, dy5;  // dy-some distance
-volatile POINT xr2 = 5, xr3 = 45, xr4 = 20, xr5, yr2 = 50, yr3 = 200, yr4 = 170, yr5;
-volatile POINT x12, x13, x14, x15, y12, y13, y14, y15, xi1[6] = { 300, 300, 300, 300, 300, 280 }, yi1[6] = { 50, 70, 90, 110, 130, 160 }, xw1 = 10, yw1 = 190, xv1 = 60, yv1 = 80, xv2 = 60, yv2 = 100;  // x11 defined in 1 st program group
 volatile unsigned char ch1 = 0x41, ch2 = 0x61, ch3, ch4 = 'j', ch5, ch6, ch7 = 'd', ch8, ch9, ch10, ch11, j, j1 = 0, j2 = 0, j3 = 0, j4, j5, j6, j7, j8, j9, j10, chr, TchScrch;  // ch1='A' & ch2='a', ch4=107 (97+10 ('k') )
 volatile unsigned char j2old = 0, j3old = 0, j4old = 0, j5old = 0, j6old = 0, j2new = 0, j3new = 0, j4new = 0, j5new = 0, j6new = 0;
 volatile unsigned char dimR;                       // dimR='milli'/blank/'kilo'
-volatile unsigned char chs1 = 0, chs2, Kbkaz = 0;  //chs1-- old state of touch pad, chs2-- present state, Kbkaz='a'~'z'means some key is pressed. Kbkaz=0 means action has been taken
 volatile unsigned char sgsy[8] = { '+', '+', '-', '-', '-', '-', '+', '+' };
-volatile byte PrA, PrC;                    // data to be written into Arduino ports A & C
-volatile byte SPrA = 04, SPrB = 00, SPrC;  // data to be wrtten into 'Slave' Ports (of 8255 on A4-D1 card) A,B,C , V5 =V5Low
 volatile float vr1 = 49.37, vr2, vr3, vr4, vr5, Vinp, KNp = 5000.0, KNm = 5000.0, Voffs = +0.0, SPVolt;  //27; ( for Gain=5.0 ),
 volatile float IeMag[] = { 0.4, 1.0, 2.00, 5.0, 10.0, 20.0 }, Ieval = 2.0, wgt1, wgt2, icnA1;  // Ieval= 2.0 mAmp
 volatile char st1[wsl] = { "+000085.12  g" }, st2[wsl], st3[wsl], st4[wsl] = { "" }, st5[wsl], st6[wsl], st7[wsl], st8[wsl], st9[wsl], st10[wsl];
 volatile char Blnk[10] = { "         " }, Fpr = 'Q';  // 'Q' means it is in 'Test' mode 10 blanks,Fpr=0 or 'F',or 'G'....'P' (11 nos.)
-
 volatile char FName2[10] = { "Srv3.csv" }, StrName1[20], StrName2[20], StrName3[20];
- //(say, Npp= 50, Noffset+,- Np =,- (for Gain.5 -- Noffp =155
-const int SerD = 22, SClk = 23, Lat = 24, SyncP = 25, Wr2 = 27;    // Serial  data out -D22,Serial clock pin=D23,LatchPin=D24. SyncP for OscScope
 volatile byte A2_Cntrl, A4_Dt, A4_Cntrl, A4_KAv, A4_Rl, A4_DAC;
 const String inStr = "499.98", Str3, Str5 = "Vp1p2", Str6 = "Resist", Str7, Str11 = "Sur4.csv";
 volatile String Str10, Str12, Str13, Str14, Str15 = ("Sur4.csv"), Str16("#"), Str17, Str18, Str19, Str20;                                              // volatile Strings, "Suv" -- Survey
@@ -99,40 +89,19 @@ volatile unsigned int tn1 = 0, tn2, tn3, t_transf = 0, no_rdgs = 0, kpr = 0, kpr
 volatile float fact1, fact2, fact3, fact4, fact5 = 0, tenf[] = { 1, 10, 100 };  // different factors of Resistance 'Resm'
 volatile unsigned int StRd[] = { 1, 2, 3, 4, 5 }, StL[] = { 15, 30, 50, 100, 150 }, StRd1, StL1, StL2, NRec = 5;
 volatile float StRho[] = { 30.53, 25.41, 17.62, 20.28, 21.73 }, StRho1;  // Rho values
-#define Kbin0 37                                                         // 4 return lines
-#define Kbin1 39
-#define Kbin2 41
-#define Kbin3 43
-#define otpin0 29  // scan output code on 4 pins
-#define otpin1 31
-#define otpin2 33
-#define otpin3 35
-#define k_9 0x44    // '9'
-volatile byte Kbout[4], sccdV[4] = { 0x0E, 0x0D, 0x0B, 0x07 }, RetL = 0, RetL2 = 0x41;
-volatile struct {
-  byte KSt;
-  byte j;
-  byte DbD[4];
-  byte LKSt;
-  byte DefKSt[2];
-} Cl[4];  //
+#define k_9 0x44  //Key 9 on keypad defined
 volatile byte RtLD, Curr_Sw, Range_Sw, Cycl_Sw = 2, Meas_Sw;  // Cycl_Sw=2 means 4-cycle mode  rtLD is read from kkbin0~3
 volatile byte tick1[8] = { 0, 1, 2, 0x14, 8, 0, 0 }, tick2[8] = { 0, 1, 3, 0x16, 0x1c, 8, 0 };
-volatile float Altit, lat, lon, ltg2, lsec2, lx2, frdg2, frmin2;  // Of these only lat,lon have been used presently
 volatile float err0, err1, Rlsec0, Rlsec1;                        // err=(present)lsec0- (Reference ) Rlsec0. fAltit-Altitude(float)
 volatile float frdg0, frdg1, lx0, lx1, frmin0, frmin1, lsec0, lsec1, ltg0, ltg1;
 volatile unsigned int LnNo = 0, tLn = 0, Yr, YrL, EYr[4];
-volatile byte Mn, Dte, Hr, mint, Scnd, EMn[4], EDte[4], EHr[4], Emint[4], EScnd[4], DeciSec, Cr, DteL, MnL, HrL, mintL, ScndL;  // E- extra
 volatile unsigned long LAltit, f_age = 0, sz1, sz2, tsz1, tsz2;                                                                 // sz1,sz2 for file size, tsz1,tsz2-- total sizes
 volatile unsigned int i1, i2, i3, i4, i5, EdSpc_No=2;  // 'Edit_Spacing_Srl. No.
-volatile float latitude, longitude;  // from
 void fnc_H9() {  // within 'H' ,key-9  pressed,'Sigma',5 , Normal Survey mode,SpacingNo
   digitalWrite(27, LOW);
   timr7 = 0;
   timr7_flag = 1;  //  D27<--0,turns on Auto_D
 }
-void TP_Dialog(void) {}
-void Dr_Kb(){}
 void A4_Init() {
   InitTimr();    // Timers 3,5,0 initialized
   interrupts();  //enable all global interrupts
@@ -214,7 +183,6 @@ void A4_Init() {
   lcd1.createChar(1, tick1);
   lcd1.createChar(2, tick2);
 }
-void show_some(){}
 //----------------------------begin E2prom_put----------------
 void E2prom_put() {
   tEA = EAd9; for (i5=0; i5>=15; i5++) {EEPROM.put(tEA,RcBf_R1[i5] ) ; tEA++; }
@@ -249,7 +217,7 @@ void E2prom_Lltbl(unsigned int n1) {
     EEPROM.put(tEA, pgm_read_word_near(Dipnat + i1));
   }  //EAd9=2280,25 sets
 }
-void Updt_DigInpLvls() {}//-----------------------------calculate Batt. Voltage--(7/Sep/2022---------------------------------------------------------------
+//-----------------------------calculate Batt. Voltage--(7/Sep/2022---------------------------------------------------------------
 void calc_Batt() {
   BattV = (float)ln8 / 100.0;
   dtostrf(BattV, 5, 2, st1);                                                         // Batt Volt e.g. 12.83, RcBf_R1[7] expected to be 0
@@ -513,15 +481,6 @@ void fnc_Q2()  //---- when key_9 is pressed
   timr7 = 0;
   timr7_flag = 1;  //  D27<--0  timr7 starts with '0'
 }
-void fnc_Q1(){}
-void L_Init1(void) {}
-void Show_LlK3(unsigned int n1, unsigned int nL, unsigned int nl) {}
-void Show_LlK2(unsigned int n1) {}
-byte Get_key() {}
-ISR(TIMER3_COMPA_vect){}
-void Show_Spc(int Sp) {}
-void Show_wt(char* st2) {}
 void A4_D1_DAC(byte byt1){}
 byte RevBits(byte Num) {}
 void del1() {}
-void Get_GPS(void) {}
