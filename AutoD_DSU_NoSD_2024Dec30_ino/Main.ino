@@ -32,51 +32,28 @@ void setup() {
   pinMode(27, OUTPUT);
   digitalWrite(27, HIGH);  // D27 is made '0' for ~200 mSec. to turn A1 card on
   void Recv_Serial2(void);  // prototype definition
- Serial.begin(57600, SERIAL_8N1);  //for Serial monitor (LapTop)
-  Serial.println("examining DSU data");
   LCD_SCAN_DIR Lcd_ScanDir = SCAN_DIR_DFT;  //SCAN_DIR_DFT = D2U_L2R
   LCD_Init(Lcd_ScanDir, 200);
-  TP_Dialog();
   del1();
   InitTimr();
   interrupts();       // This is moved to A4_Init enable all global interrup
   lcd1.begin(20, 4);  //  20, 4): 20 chars.(0~19)x 4 lines(0~3)
   lcd1.setCursor(0, 0);
   lcd1.print("Anvic systems ");
-  Serial.println("SR11----");
   lcd1.setCursor(0, 1);
-  lcd1.print("+++++ CRM Auto - D +++Test 87+++");
+  lcd1.print("+++++ CRM Auto - D +++Test 90+++");
   delay(2000);
   lcd1.setCursor(0, 1);  //
- Serial1.begin(9600);
-Serial.println("SR12----");
   const int SDC_CS_PIN = 53;
-  Serial.println("SR13---");
        SD_ok=1;lcd1.clear();lcd1.setCursor(0, 2);
         lcd1.setCursor(5, 3);  lcd1.print(" ...SD OK.... ");
         delay(2000);
   DDRC = 0xFF;  // port C is output port. Not needed !
   pinMode(26, INPUT_PULLUP);  // this pin goes Low when Measure switch is pressed
   A4_Init();  // ( one-time initialization
-  pinMode(otpin0, OUTPUT);
-  pinMode(otpin1, OUTPUT);  // out (3,2,1,0) 1110
-  pinMode(otpin2, OUTPUT);
-  pinMode(otpin3, OUTPUT);
-  pinMode(Kbin0, INPUT_PULLUP);
-  pinMode(Kbin1, INPUT_PULLUP);
-  pinMode(Kbin2, INPUT_PULLUP);
-  pinMode(Kbin3, INPUT_PULLUP);
-  //SD Card from below
-  
 }  // end of 'setup()
 void loop() {
-   i11++;
-  if (i11 >= 100000) {
-    i11 = 0;
-    i13++;
-    i14 = i13 % 10;
-  }
-  if (timr4 > 200 && timr4 <= 400) Get_GPS();  // timr4 goes from 0~ 40 Sec. {  Kbkaz=0; }    //  Read & show GPS timr4<=5 Sec. only
+   // timr4 goes from 0~ 40 Sec. {  Kbkaz=0; }    //  Read & show GPS timr4<=5 Sec. only
   Recv_Serial2();     //    //  void receive data from A1-card
   Kb_Action();  // show all 16 keys, & take appropriatae actions
   Led += 1;
