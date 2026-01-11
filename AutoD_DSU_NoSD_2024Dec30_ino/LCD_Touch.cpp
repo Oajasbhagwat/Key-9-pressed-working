@@ -1,6 +1,4 @@
 //Code to edit 
-
-
 #include <LiquidCrystal.h>
 #include <Keypad.h>
 const byte ROWS = 4;
@@ -17,15 +15,11 @@ byte pin_rows[ROWS] = {29,31,33,35};
 byte pin_column[COLS] = {37,39,41,43};
 
 Keypad customKeypad = Keypad(makeKeymap(keys), pin_rows, pin_column, ROWS, COLS);
-
-
 //-----------Till here------------------
-
 
 #include "LCD_Touch.h"  //---------AutoD_DSU8------------------
 #include "Debug.h"
 #include <EEPROM.h>
-
 #include <TinyGPS.h>
 #include <TinyGPS++.h>     //#include <var_const.h>
 #include <avr/pgmspace.h>  // <avr/pgmspace.h> is needed to define constants in 'Program memory' 8/march/2023
@@ -124,7 +118,6 @@ volatile float StRho[] = { 30.53, 25.41, 17.62, 20.28, 21.73 }, StRho1;  // Rho 
 #define otpin1 31
 #define otpin2 33
 #define otpin3 35
-//  define key-codes -------------------
 #define k_1   0x11  // '1'
 #define k_4   0x21  // '4'
 #define k_7   0x41  // '7'
@@ -166,20 +159,11 @@ volatile float latitude, longitude;  // from
         Paint the Delete key and paint color choose area
 *******************************************************************************/
 
-
-
-
 void fnc_H9() {  // within 'H' ,key-9  pressed,'Sigma',5 , Normal Survey mode,SpacingNo
-
   digitalWrite(27, LOW);
-  Serial.println("key 9 pressed");
-
   timr7 = 0;
   timr7_flag = 1;  //  D27<--0,turns on Auto_D
 }
-
-
-
 
 void TP_Dialog(void) {
 }
@@ -227,8 +211,6 @@ void A4_Init() {
   tEA = EAd1 + (7 * 2);
   EEPROM.get(tEA, Survey_No_Stat);          // 0-- means No Survey is open presently, 1- means 'Srv_No' is the latest survey
   Str11 = "Srv" + String(Srv_No) + ".csv";  // e.g. Srv5.csvStr11="Srv"+String(Srv_No) + ".csv";// e.g. Srv5.csv
-  A1_Power();  // this defines: A1PowN. A1PowN==1mens A1 card is powered On
-  // --------------------calculation of about float 100 Lv[100] & lv[100] values---19/july/2022 --------------------------------------------------
   for (j2 = 0; j2 <= LNomax - 1; j2++) {  //LNomax = 38 ,presently
     LNo[j2] = j2;
   }  // end of j2 0~,++loop
@@ -257,12 +239,6 @@ void A4_Init() {
   LCNomax = j5 + 1;
   lCNomax = j2 + 1;  // now,LCNomax overrides the value declared in variable list. if LNomax=47, then LCNomax= ~47+8=55
   //  ............................end of study of L_l_Table ......................
-  //  -------------------calculate all K values ---Scalck(float,float)defined on L 874----------
-  for (j5 = 0; j5 <= LCNomax - 1; j5++) Kv[j5] = ScalcK(Lv[LCNo[j5]], lv[lCNo[j5]]);  // example:  LCNo= 0,1,2,3, 3,4,5 lCNo= 0,0,0,0, 1,1,1
-  //  .................................end of calculate all K values.........................
-  // ..................................End of 19/july/2022 .part...............................
-  //  -------------------calculate all K values ---Scalck(float,float)defined on L 874----------
-  for (j5 = 0; j5 <= 22; j5++) Kv[j5] = ScalcK(Lv[LCNo[j5]], lv[lCNo[j5]]);  // example:  LCNo= 0,1,2,3, 3,4,5 lCNo= 0,0,0,0, 1,1,1
   // -------- ----------------------------Define Survey file e.g. Srv15.csv ---------------------------------------------
   del1();
   IntSz = 2;
@@ -273,8 +249,6 @@ void A4_Init() {
   del1();
   //..................................................end of 'define Survey file...............................
   //---------------------------------write  into 'SD' . ---- Then read back & show it----------------------------
-  xv1 = 60;
-  yv1 = 80;  // xv2=60,yv2=100 -initially
   del1();
   // Define some parameters
   Npls[1] = Nbck + Nsig;
@@ -283,15 +257,7 @@ void A4_Init() {
   Npls[4] = Nbck + Nsig;
   yfct = (float)(70.0 / (float)Npls[1]);
   j2 = 0;  // bit position in received byte
-  if (digitalRead(22) == HIGH) {
-    pres_lvl = 1;  // -----Should be done only when +D is on--------------------
-    last_lvl = pres_lvl;
-  } else {
-    pres_lvl = 0;
-    last_lvl = pres_lvl;
-  }
   Recv = 0;  // ignore received data
-  Erase2();
   j3 = 0;  // j3= no. of bytes receied on 'Serial1' initialized to 0
   kpr = 2;
   Fpr = 'Q';
@@ -302,7 +268,6 @@ void A4_Init() {
   lcd1.createChar(2, tick2);
 }
 void show_some(){}
-void GPS_waiting(){}
 //----------------------------begin E2prom_put----------------
 void E2prom_put() {
   tEA = EAd9; for (i5=0; i5>=15; i5++) {EEPROM.put(tEA,RcBf_R1[i5] ) ; tEA++; }
@@ -347,10 +312,8 @@ void calc_Batt() {
                                                                                      //-------------- do not clear entire lcd ----------------------------
   lcd1.setCursor(0, 0);
   if (Fpr == 'Q') lcd1.print("F0");
-  if (Fpr == 'H') lcd1.print("F2");
-  if (Fpr == 'J') lcd1.print("F4");
   lcd1.setCursor(13, 0);
-  lcd1.print("BE=");
+  lcd1.print("B=");
   lcd1.print(BattV, 2);  // now,'Sigma',1lcd1.clear();show at (13,0) B=12.68
   delay(2000);
   lcd1.setCursor(0, 3);
@@ -381,8 +344,7 @@ void calc_Batt() {
   }
 }
 void curr_Status() {
-  Serial.println("curr_Status_Start");
-  if (RcBf_R1[17] == 1) IeStat = 0;
+   if (RcBf_R1[17] == 1) IeStat = 0;
   else IeStat = 1;  // IeStat =0, means 'current not flowing
   if (IeStat == 1) {  // Current flowing ok
     IeNo2 = RcBf_R1[18];
@@ -408,11 +370,9 @@ void curr_Status() {
     tn2 = 0;
     t_transf = 0;  // So DSU knows that Auto_D will now turn off
   }
-  Serial.println("curr_Status_End");
 }
 void Show_LlK(void) {}
 void calc_Res() {
-  Serial.println("calc_Res_Start");
   vr2 = (float)RcBf_R1[31] + (float)RcBf_R1[32] * 256.0 + (float)RcBf_R1[33] * 65536.0;  //
   ln8 = ((long)RcBf_R1[25] * (long)0x10000) + (long)RcBf_R1[24] * (long)0x100 + (long)RcBf_R1[23];
   icnA1 = ((float)ln8 / 256.0) * tenf[RcBf_R1[26] - 1];  //Gain[0~3]-- 5/0.5/0.05/0.005
@@ -426,23 +386,6 @@ void calc_Res() {
   if (Surv_meth == 1){} 
   if (Surv_meth == 2){}
   if (Surv_meth == 3){}
-  Serial.print("|F_cnt|");
-  Serial.print(vr2);
-  Serial.print("| ");
-  Serial.print(RcBf_R1[31]);
-  Serial.print(" ");
-  Serial.print(RcBf_R1[32]);
-  Serial.print(" ");
-  Serial.print(RcBf_R1[33]);
-  Serial.print(" ");
-  Serial.print(" |icnA1|- ");
-  Serial.print(icnA1);
-  Serial.print(" exp-");
-  Serial.print(RcBf_R1[26] - 1);
-  Serial.print(" ");
-  Serial.print("Gain No ");
-  Serial.print(RcBf_R1[28]);
-  Serial.print(" ");
   if (Resm <= 1200.0) {
     dimR = 'm';
     Rest[RdNo] = Resm;
@@ -481,27 +424,22 @@ void calc_Res() {
 
     File MyF;
          SD.begin();
-      myF = SD.open("FName2.txt", FILE_WRITE);
+      myF = SD.open("FName7.txt", FILE_WRITE);
        myF.print("         Res");
        myF.println("         Batt ");
        myF.print(tRes, 2);
        myF.print(BattV);
-       
        myF.close();
-       lcd1.println("File writing done");
+       lcd1.setCursor(0,3);
+       lcd1.print("File writing done");
        delay(2000);
-
-  lcd1.setCursor(0, 0);
-  lcd1.print("key from keypad 14");
-   delay(2000);
-  lcd1.clear();
+       lcd1.clear();
   char key = customKeypad.getKey();
   int i;
    for(i=1; i<500; i++){
     if(!key) {
     key = customKeypad.getKey(); 
     delay(20);
-    
     }
    } 
  
@@ -510,20 +448,7 @@ void calc_Res() {
     lcd1.print("Key is ");
     lcd1.print(key);
     delay(2000);
-    if (key == 'P') {
-      Serial.print("Previous");
-    } else if (key == 'N') {
-      Serial.print("Next");
-    } else if (key == 'C') {
-      Serial.print("Clear");
-    } else if (key == 'S') {
-      Serial.print("Save");
-    } else {
-      Serial.print(key);
-    }
   }
-
-
 
 if(key == '9'){
   delay(2000);
@@ -554,8 +479,46 @@ if(key == '9'){
   pinMode(Kbin1, INPUT_PULLUP);
   pinMode(Kbin2, INPUT_PULLUP);
   pinMode(Kbin3, INPUT_PULLUP);
-}
 
+//Added-------------------------------------------------------------
+
+      ch10 = Serial2.read();           //Recv_Buff1[j3a] = ch10; j3a++;
+    RcBf_R1[tn1] = ch10;
+    if (t_transf == 1) {
+      Recv_Buff1[tn2] = ch10;  // copy ch10 into Recv_Buff1 (15 bytes)
+      tn2++;
+    }
+    n15 = ch10 & 0x0F;
+    if (n15 <= 9) ch6 = 0x30 + n15;
+    else ch6 = 0x41 + (n15 - 10);                            // calculate 1st nibble (lower nibble only) (later try st3=String (n14,HEX);)
+    n15 = (ch10 & 0xF0) >> 4;
+    if (n15 <= 9) ch8 = 0x30 + n15;
+    else ch8 = 0x41 + (n15 - 10);                        //calculate 2nd nibble (ch8)
+    if (RcBf_R1[tn1] == 0xFF && RcBf_R1[tn1 - 1] == 0xFF) {
+      tn1++;  // // show resistance
+      if (tn1 == 15) { 
+        E2prom_put() ;
+ // store RcBf_R1 [0~15 byttes in EEPROM]
+        calc_Batt();
+        if (Range_Sw != 1 && Fpr != 'Q');
+      }  // do not call Show_LlK ,if in Batt position,, or in 'Test'mode. show 15 bytes, expected to be 01,0Fh,.....upto FFh,FFh
+      if (tn1 == 21) curr_Status();
+      if (tn1 == 21) {
+        tn2 = 0;
+        tn3 = 0;
+        t_transf = 1;
+      }  // tn2 will go from 0 to 14 (15 bytes)
+      if (Cycl_Sw == 1 && (tn1 == 35 || tn1 == 36)) {
+        xn1 = 0;
+        PrCycl_No = 0;
+        calc_Res();
+        tn1 = 0;
+      }  //  && means 1-cycle only. after 'calc_Res' make tn1=0;  // end of 'if Cycl_Sw==1/2/3/4
+    }    //end of 'if 2 bytes=FFh,FFh
+    else {
+      tn1++;
+    }  // if (t_transf==1) tn2++;  at Ln ~ 1475
+}
     
     if (dimR == 'm') lcd1.print("m");
     if (dimR == ' ') lcd1.print(" ");
@@ -565,26 +528,16 @@ if(key == '9'){
     } else {
       myF = SD.open(FName2, FILE_WRITE);
        myF.print("         Res");
+       myF.print(",");
        myF.println("         Batt ");
        myF.print(BattV);
-       Serial.print("File writing done");
-       delay(1000);
-      
     }
     lcd1.setCursor(0, 3);
     lcd1.print(" ");
     lcd1.setCursor(0, 0);
     if (Fpr == 'Q') lcd1.print("F0");
-    if (Fpr == 'H') lcd1.print("F2");
-    if (Fpr == 'J') lcd1.print("F4");
-    if (Fpr != 'Q') {
-      lcd1.setCursor(0, 3);
-      lcd1.print("press 6 for next");  // message for next operation
-      lcd1.setCursor(12, 0);
-      lcd1.print("       ");
-      lcd1.setCursor(19, 0);
-      lcd1.print(" ");
-    }  // erase chars. 12~19 & ch. (19,0)
+        
+    if (Fpr != 'Q') {    }  // erase chars. 12~19 & ch. (19,0)
     else {
       lcd1.setCursor(0, 3);
       lcd1.print(" ");
@@ -703,38 +656,12 @@ if(key == '9'){
   if (Cycl_Sw == 1 || (PrCycl_No == 4 && (Cycl_Sw == 2 || Cycl_Sw == 3 || Cycl_Sw == 4))) {
     if (Fpr != 'Q')  // {writing into 'SD' not to be done when Fpr==0, Test mode)
     {}               // end of writing into 'SD''
-    Serial.println("calc_Res_End");
   }  // end of writing into 'SD'
 }  //..........................................end of 'calc_Res'............................................
-
-
-
-// void simple_lcdprint(string s, time t){
-//   lcd1.clear();
-//   delay(t);
-//   lcd1.print(s);
-//   delay(t);
-
-
-// }
-
-
-
-
-
-
-
-
-
 
 void Recv_Serial2() {  //j3a=0 to be done at initialization time          xv1=60 & yv1==80 initially
   while (Serial2.available() > 0) {  // data expected from Serial-2 channel (Serial-1 is for GPS module) as of 8/August/2022)
     ch10 = Serial2.read();           //Recv_Buff1[j3a] = ch10; j3a++;
-    if (xv1 >= 400) {
-      yv1 += 16;
-      xv1 = 0;
-    }
-    Serial.print(ch10) ;
     RcBf_R1[tn1] = ch10;
     if (t_transf == 1) {
       Recv_Buff1[tn2] = ch10;  // copy ch10 into Recv_Buff1 (15 bytes)
@@ -747,11 +674,6 @@ void Recv_Serial2() {  //j3a=0 to be done at initialization time          xv1=60
     if (n15 <= 9) ch8 = 0x30 + n15;
     else ch8 = 0x41 + (n15 - 10);                        //calculate 2nd nibble (ch8)
     if (RcBf_R1[tn1] == 0xFF && RcBf_R1[tn1 - 1] == 0xFF) {
-      xv1 += 20;
-      xv1 += 20;
-      xv1 += 20;
-      xv1 = 60;
-      yv1 += 12;
       tn1++;  // // show resistance
       if (tn1 == 15) { 
         E2prom_put() ; // store RcBf_R1 [0~15 byttes in EEPROM]
@@ -772,66 +694,14 @@ void Recv_Serial2() {  //j3a=0 to be done at initialization time          xv1=60
       }  //  && means 1-cycle only. after 'calc_Res' make tn1=0;  // end of 'if Cycl_Sw==1/2/3/4
     }    //end of 'if 2 bytes=FFh,FFh
     else {
-      xv1 += 20;
       tn1++;
     }  // if (t_transf==1) tn2++;  at Ln ~ 1475
   }  // end of 'if Serial2 available
 }
-void Show_ResistData() {
-}
-float WcalcK(float av) {}
-float ScalcK(float Lv, float lv) {}
-float DipcalcK(unsigned int a, unsigned int n) {}
-void Erase1(void) {}
-void Erase2(void) {}
-void get_Hex(byte x) {}
-void show_ByRcvd() {}
-void Updt_RecD(void) {}
-void A1_Power() {}
-void check_Keyboard() {}
-void Show_Eprom2(unsigned int L, unsigned int l) {}
-void Show_Eprom3(unsigned int L, unsigned int l) {}
 void Kb_Action(){if (keyBf0 == k_9) {
-        Serial.println("F2 mode key-9 to be pressed");
         fnc_H9();
         keyBf0 = 0;
       }}
-void Reject_k() {}
-void entry_fnc_J(){}
-void entry_fnc_J1(){}
-void entry_fnc_J2(){}
-void fnc_J2(){}
-void fnc_J3(){}
-void fnc_J4(){}              // make survey no = 30,(say)
-void stat_mod_J5(){}
-void stat_mod_j6(){}
-void stat_mod_J7(){}
-void stat_mod_J8(){}
-void entry_fnc_I(){}
-void fnc_I2(){}
-void fnc_I3(){}
-void fnc_I4(){}
-void fnc_I5(){} 
-void fnc_I6(){}
-void fnc_I7(){}
-void fnc_I8(){}
-void fnc_I9(){}
-void fnc_I10(){}
-void entry_fnc_G() {}
-void fnc_G2() {}
-void fnc_G3() {}
-void fnc_G4() {}
-void entry_fnc_H() {}
-void fnc_H2() {} //.....................................end of fnc_H2......................
-void fnc_H3() {} 
-void fnc_H4() {}
-void fnc_H6() {}
-
-void fnc_H_Prv(){}
-void fnc_H_Nxt() {}
-void entry_fnc_K(){}
-void fnc_K2() {}
-void fnc_K3() {}  //---
 void entry_fnc_Q() {
   unsigned int i1;  //show Resistance  only. No L,l,K,nor 'Rho'
   tn1 = 0;
@@ -856,34 +726,13 @@ void fnc_Q2()  //---- when key_9 is pressed
 }
 void fnc_Q1(){}
 void L_Init1(void) {}
-void L_Scr_Schlum(void){}
-void L_Scr_Wenn(void){}
-void L_Scr_Dip(void){}
 void Show_LlK3(unsigned int n1, unsigned int nL, unsigned int nl) {}
 void Show_LlK2(unsigned int n1) {}
-void Screen_1(){}
-void Screen_2(){}
-void Screen_3(){}
-void Screen_4(){}
-void Alpha_1(){}
-void Alpha_2(){}
-void Alpha_3(){}
-void Normal_1(){}
-void Wr_A2A4(){}
-void Wr2_pulse(){}
-void Test_Port(void) {}  //  ------ end of function Test_Port  ------------------------
-void Show_Timr5(void) {}
 byte Get_key() {}
 ISR(TIMER3_COMPA_vect){}
 void Show_Spc(int Sp) {}
-ISR(TIMER5_COMPA_vect){}
-ISR(TIMER0_COMPA_vect){}
-void Updt_Displ(void) {}
 void Show_wt(char* st2) {}
 void A4_D1_DAC(byte byt1){}
 byte RevBits(byte Num) {}
 void del1() {}
-void wrt_Pr(void) {}
-void Get_GPS2(void) {}
 void Get_GPS(void) {}
-void TP_DrawBoard(void) {}  

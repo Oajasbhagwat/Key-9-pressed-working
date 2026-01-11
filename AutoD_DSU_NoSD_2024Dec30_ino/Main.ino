@@ -45,7 +45,7 @@ void setup() {
   lcd1.print("Anvic systems ");
   Serial.println("SR11----");
   lcd1.setCursor(0, 1);
-  lcd1.print("+++++ CRM Auto - D +++Test 82+++");
+  lcd1.print("+++++ CRM Auto - D +++Test 87+++");
   delay(2000);
   lcd1.setCursor(0, 1);  //
  Serial1.begin(9600);
